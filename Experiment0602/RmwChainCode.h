@@ -1,0 +1,48 @@
+#ifndef  RMW_CHAIN_CODE_H
+#define  RMW_CHAIN_CODE_H
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// 数据结构
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define OFFSETX static int offsetx[8]={1, 1, 0,-1,-1,-1, 0, 1}
+#define OFFSETY static int offsety[8]={0,-1,-1,-1, 0, 1, 1, 1}
+struct ContourStruct{
+	bool IsOutContour; //true:外轮廓; false:内轮廓
+	int x0,y0; //链的起点坐标
+	int ChainLength; //链的长度
+	BYTE *Chain;//链码数组，逆时针方向8连通。
+	struct ContourStruct *Next; //指向下一个目标
+
+	int Area,Perimeter; //面积和周长，空值
+	int Left,Right,Top,Bottom;//外接矩形，空值
+	int UsedDown,UsedUp; //临时辅助用变量，空值
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// 链码系列函数
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int RmwTraceContour(BYTE *Img,int width,int x,int y,BYTE *codebuf,int bufsize,bool isOut);
+int RmwFillingContour(BYTE *pImg,int width,int x0,int y0,const BYTE *code,int N,bool fillEdge,BYTE nonc,BYTE fillc);
+struct ContourStruct *RmwGetContours(BYTE *pBinImg,BYTE *pImgBuf,int width,int height,int MiniP,int MiniS,int Out1In2ALL3);
+void RmwFreeContourStruct(struct ContourStruct *all_Contour);
+
+void RmwRealAreaAndPerimeter(BYTE *code,int N,int *Area,int *Perimeter);
+void RmwAreaAndPerimeter(BYTE *Code,int N,int *Area,int *Perimeter);
+void RmwMarkChainByColor(BYTE *img,int width,int x,int y,BYTE *Code,int N,BYTE Color);
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// 灵活运用1: 用作边缘选择
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void RmwEdgeDeleteNoiseAndCrossPoints(BYTE *pEdgeImg,int width,int height,int nMaxNeighbors);
+void RmwEdgeDeleteNoiseByLength(BYTE *pEdgeImg,int width,int height,int minLength,BYTE *pResImg);
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// 灵活运用2: 3x3的膨胀和腐蚀
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif
